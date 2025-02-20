@@ -4,9 +4,10 @@ import GamePage from "@/pages/GamePage/GamePage.tsx"
 import SettingsPage from "@/pages/SettingsPage.tsx"
 import {WalletSelectorPage} from "@/pages/WalletSelectorPage.tsx";
 import WorldSelectorPage from "@/pages/WorldSelectorPage.tsx"
-import { usePixelawProvider } from "@pixelaw/react"
+import { PixelawProvider, usePixelawProvider } from "@pixelaw/react"
 import { Route, Routes } from "react-router-dom"
 import styles from "./Main.module.css"
+// import { PwarProvider } from "./providers/PwarProvider"
 
 function Main() {
     const { coreStatus } = usePixelawProvider()
@@ -48,6 +49,11 @@ function Main() {
                 </Routes>
             </div>
 
+            <PixelawProvider worldsRegistry={worldsRegistry} world={world} engines={engines}>
+                {/* <PwarProvider> */}
+                    <GamePage />
+                {/* </PwarProvider> */}
+            </PixelawProvider>
 
         </div>
     )

@@ -59,19 +59,19 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                target: 'http://localhost:3000',
+                target: 'http://127.0.0.1:3000',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, ''),
                 ws: true
             },
             '/torii': {
-                target: 'http://localhost:8080',
+                target: 'http://127.0.0.1:8080',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/torii/, ''),
                 // ws: true
             },
             '/rpc': {
-                target: 'http://localhost:5050',
+                target: 'http://127.0.0.1:5050',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/rpc/, ''),
                 // ws: true
@@ -88,4 +88,3 @@ export default defineConfig({
         },
     },
 });
-
