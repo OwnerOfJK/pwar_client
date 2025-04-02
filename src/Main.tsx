@@ -5,6 +5,7 @@ import {WalletSelectorPage} from "@/pages/WalletSelectorPage.tsx";
 import WorldSelectorPage from "@/pages/WorldSelectorPage.tsx"
 import {Route, Routes} from "react-router-dom"
 import styles from "./Main.module.css"
+import PwarPage from "./pages/PwarPage/PwarPage";
 
 function Main() {
 
@@ -19,6 +20,7 @@ function Main() {
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/world" element={<WorldSelectorPage />} />
                     <Route path="/wallet" element={<WalletSelectorPage />} />
+                    <Route path="/pwar" element={<PwarPage />} />
                     <Route path="/" element={<GamePage />} />
                 </Routes>
             </div>
