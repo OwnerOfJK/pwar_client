@@ -8,7 +8,6 @@ import { setupWorld } from '@/config/contracts.gen';
 interface PwarContextValue {
   contractService: PwarContractService | null;
   interact: (x: number, y: number) => Promise<void>;
-  update_pixel: (x: number, y: number) => Promise<void>;
 }
 
 // Create the context
@@ -29,20 +28,13 @@ export const PwarProvider: React.FC<PwarProviderProps> = ({ children }) => {
     if (!pixelawCore) return;
 
     const wallet = pixelawCore.getWallet() as DojoWallet;
-    if (!wallet) {
-      console.error('Failed to get wallet:', wallet);
-      throw new Error('No wallet found');
-    }
 
     try {
-      
-      // const account = wallet.getAccount();
-      const account = wallet.account;
+      const account = wallet.getAccount();
       const provider = pixelawCore.engine["dojoSetup"].provider;
-      // const world = setupWorld(pixelawCore.engine["dojoSetup"].provider)
       const world = setupWorld(provider);
       
-      const service = new PwarContractService(account, provider);
+      const service = new PwarContractService(account, provider, world);
       setContractService(service);
     } catch (err) {
       console.error('Failed to initialize contract service:', err);
@@ -56,17 +48,9 @@ export const PwarProvider: React.FC<PwarProviderProps> = ({ children }) => {
     await contractService.interact(x, y);
   };
 
-  const update_pixel = async (x: number, y: number) => {
-    if (!contractService) {
-      throw new Error('Contract service not initialized');
-    }
-    await contractService.update_pixel(x, y);
-  };
-
   const contextValue: PwarContextValue = {
     contractService,
     interact,
-    update_pixel
   };
 
   return React.createElement(PwarContext.Provider, { value: contextValue }, children);

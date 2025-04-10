@@ -1,88 +1,51 @@
-import { PixelawCore } from "@pixelaw/core";
-import { DojoWallet } from "@pixelaw/core-dojo";
 import { Position } from "@pixelaw/core";
-import { DefaultParameters, PixelUpdate } from '@/config/models.gen';
+import { DefaultParameters } from '@/config/models.gen';
 
 export class PwarContractService {
   private account: any;
   private provider: any;
+  private world: any;
 
-  constructor(account: any, provider: any) {
-    this.account = account;
+  constructor(wallet: any, provider: any, world: any) {
+    
+    this.account = wallet;
     this.provider = provider;
-  }
-
-  async update_pixel(x: number, y: number) {
-    console.log(`Interact called with Position ${x} and ${y}`);
-
-    //This should use the Default Parameters (imported use it here)
-    //verify the selector using sozo execute with inputs to make sure everything fits.
-
-      const pixelUpdate: PixelUpdate = {
-        x: x,
-        y: y,
-        color: 0xffffff, // Example color (white)
-        owner: "0x123456789abcdef123456789abcdef123456789abcdef123456789abcdef1234", // Example owner address
-        app: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd", // Example app address
-        text: null, // No text
-        timestamp: Date.now(), // Current timestamp
-        action: null // No action
-      }
-
-    try {
-      return await this.provider.execute(
-        this.account,
-        {
-          contractAddress: "0x052cf765ad094d9edb5787f47cfd3a0682ff35006995e8146b55e73c3c600be4", // pixelaw-actions
-          entrypoint: "update_pixel",
-          calldata: [
-            "0x1", // ref world
-            "0x1", // for_player
-            "0x1", // for_system
-            pixelUpdate, // PixelUpdate serialized
-            "0x1", // area_id_hint (example: 0)
-            true // allow_modify (example: true)
-          ]
-        }
-      );
-    } catch (error) {
-      console.error("Failed to interact with pixel:", error);
-      throw error;
-    }
+    this.world = world;
   }
   
   async interact(x: number, y: number) {
-    console.log(`Interact called with Position ${x} and ${y}`);
-
-    //This should use the Default Parameters (imported use it here)
-    //verify the selector using sozo execute with inputs to make sure everything fits.
-
-    // const parameters : DefaultParameters = {
-    // player_override: new CairoOption(CairoOptionVariant.None),
-    // system_override: new CairoOption(CairoOptionVariant.None),
-    // area_hint: new CairoOption(CairoOptionVariant.None),
-    // position: { x: 0, y: 0, },
-    //   color: 0,
-    // };
+    const position: Position = { x: x, y: y };
+    console.log(`Interact called with ${position.x}, ${position.y}`);
+    console.log("Account", this.account);
+    console.log("Provider", this.provider);
+    console.log("World", this.world);
 
     try {
-      return await this.provider.execute(
-        this.account,
-        {
-          contractAddress: "0x038a25bf54d8ac997378c3322e321687bd95f48721ebce642bba8dfbdd5ca124", // p_war-p_war_actions
-          entrypoint: "interact",
-          calldata: [
-            "0x1",
-            "0x1",
-            "0x1",
-            x,
-            y,
-            255
-          ]
-        }
+      this.world.p_war_actions.interact(this.account, {
+        player_override: this.account?.address || "0x1",
+          system_override: "0x1",
+          area_hint: "0x1",
+          position: position,
+          color: 255
+        } as DefaultParameters
       );
+      // return await this.provider.execute(
+      //   this.account,
+      //   {
+      //     contractAddress: "0x02f3dad854016a24174a0cfdd3f5c72c1ef5b0320d28eba044e73467c53f385a", // p_war-p_war_actions
+      //     entrypoint: "interact",
+      //     calldata: [
+      //       "0x1",
+      //       "0x1",
+      //       "0x1",
+      //       x,
+      //       y,
+      //       255
+      //     ]
+      //   }
+      // );
     } catch (error) {
-      console.error("Failed to interact with pixel:", error);
+        console.error("Failed to interact with pixel:", error);
       throw error;
     }
   }
