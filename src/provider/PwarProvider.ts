@@ -8,6 +8,7 @@ import { setupWorld } from '@/config/contracts.gen';
 interface PwarContextValue {
   contractService: PwarContractService | null;
   interact: (x: number, y: number) => Promise<void>;
+  update_pixel: (x: number, y: number) => Promise<void>;
 }
 
 // Create the context
@@ -26,10 +27,14 @@ export const PwarProvider: React.FC<PwarProviderProps> = ({ children }) => {
   // Initialize contract service
   useEffect(() => {
     if (!pixelawCore) return;
-    
+
+    const wallet = pixelawCore.getWallet() as DojoWallet;
+    if (!wallet) {
+      console.error('Failed to get wallet:', wallet);
+      throw new Error('No wallet found');
+    }
+
     try {
-      const wallet = pixelawCore.getWallet() as DojoWallet;
-      console.log('Wallet:', wallet);
       
       // const account = wallet.getAccount();
       const account = wallet.account;
@@ -51,9 +56,17 @@ export const PwarProvider: React.FC<PwarProviderProps> = ({ children }) => {
     await contractService.interact(x, y);
   };
 
+  const update_pixel = async (x: number, y: number) => {
+    if (!contractService) {
+      throw new Error('Contract service not initialized');
+    }
+    await contractService.update_pixel(x, y);
+  };
+
   const contextValue: PwarContextValue = {
     contractService,
-    interact
+    interact,
+    update_pixel
   };
 
   return React.createElement(PwarContext.Provider, { value: contextValue }, children);

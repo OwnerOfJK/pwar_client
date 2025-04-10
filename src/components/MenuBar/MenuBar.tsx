@@ -34,7 +34,7 @@ const MenuBar: React.FC = () => {
 
     const toggleWalletSelector = () => {
         if (showWalletSelector) {
-            navigate("/")
+            navigate("/pwar")
         } else {
             navigate("/wallet")
         }

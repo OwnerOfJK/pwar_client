@@ -14,7 +14,7 @@ const PwarPageContent: React.FC = () => {
     const { pixelawCore, coreStatus } = usePixelawProvider()
     const { viewPort: renderer, pixelStore: pixelstore } = pixelawCore
     const rendererContainerRef = useRef<HTMLDivElement | null>(null)
-    const { interact } = usePwarProvider()
+    const { interact, update_pixel } = usePwarProvider()
     
     // Handle cell interactions
     useEffect(() => {
@@ -44,7 +44,10 @@ const PwarPageContent: React.FC = () => {
                 // const pixel = pixelstore.getPixel(cell);
                 // if (!pixel)
                 //     console.error("No pixel entity!");
-                await interact(cell[0], cell[1]);
+
+
+                // await interact(cell[0], cell[1]); //pwar
+                await update_pixel(cell[0], cell[1]); //pixelaw
             } catch (error) {
                 console.error("Failed to interact with cell:", error);
             }
