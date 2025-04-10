@@ -1,10 +1,11 @@
 import Apps from "@/components/GamePage/Apps/Apps.tsx";
 import SimpleColorPicker from "@/components/GamePage/ColorPicker/SimpleColorPicker.tsx";
-import {type Coordinate, getZoomLevel, type Interaction, type QueueItem,} from "@pixelaw/core";
+import {type Alert, type Coordinate, getZoomLevel, type Interaction, type QueueItem,} from "@pixelaw/core";
 
 import {InteractionDialog, usePixelawProvider} from "@pixelaw/react";
 import {useEffect, useMemo, useRef, useState} from "react";
-import styles from "./GamePage.module.css"; // biome-ignore lint/complexity/noBannedTypes: TODO
+import styles from "./GamePage.module.css";
+import type {SimplePixelError} from "../../../../pixelaw.js/packages/core/src"; // biome-ignore lint/complexity/noBannedTypes: TODO
 
 // biome-ignore lint/complexity/noBannedTypes: TODO
 function debounce(func: Function, wait: number) {
@@ -80,6 +81,24 @@ const GamePage: React.FC = () => {
 			console.log("scheduled+");
 			pixelawCore.executeQueueItem(item).catch(console.error);
 		};
+
+		const handleAlert = (item: Alert) => {
+			console.log("ALERT", item);
+		};
+
+		const handleError = (error: SimplePixelError) => {
+			console.log("handleError", error);
+			if (error.coordinate) {
+				pixelawCore.viewPort.startGlow(
+					error.coordinate,
+					2000,
+					"#FF0000",
+					10,
+					50,
+				);
+			}
+		};
+
 		console.log("handling");
 		pixelawCore.queue.eventEmitter.on("scheduled", handleQueueItem);
 		pixelawCore.queue.retrieve().then(() => {
@@ -88,11 +107,15 @@ const GamePage: React.FC = () => {
 
 		// pixelawCore.events.on("cellHovered", handleCellHover)
 		pixelawCore.events.on("cellClicked", handleCellClick);
+		pixelawCore.events.on("error", handleError);
+		pixelawCore.events.on("alert", handleAlert);
 
 		return () => {
 			// pixelawCore.events.off("cellHovered", handleCellHover)
 			pixelawCore.events.off("cellClicked", handleCellClick);
 			pixelawCore.queue.eventEmitter.off("scheduled", handleQueueItem);
+			pixelawCore.events.off("error", handleError);
+			pixelawCore.events.off("alert", handleAlert);
 		};
 	}, [pixelawCore]);
 
