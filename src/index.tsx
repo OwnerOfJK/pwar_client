@@ -10,20 +10,33 @@ import {getCoreDefaultsFromUrl, getWorldForUrl} from "@/utils.ts";
 import {StarknetChainProvider} from "@pixelaw/react-dojo";
 import type {WorldsRegistry} from "@pixelaw/core";
 import worldsRegistry from "@/config/worlds.json";
+import { setupWorld } from "@/config/contracts.gen";
+import { DojoWallet } from "@pixelaw/core-dojo"
+import { PwarContext } from "./provider/PwarContext";
 
 const AppContent = () => {
-	const { coreStatus } = usePixelawProvider();
+	const { coreStatus, pixelawCore } = usePixelawProvider();
 
 	if (coreStatus === "error") {
 		return <div className="error-message">Error occurred, check the logs</div>;
 	}
+	if (pixelawCore && pixelawCore.status === "uninitialized") {
+		return <div className="error-message">Error occurred, check the logs</div>;
+	}
+
+	const account = pixelawCore.getWallet() as DojoWallet;
+    const provider = pixelawCore.engine["dojoSetup"].provider;
+    const world = setupWorld(provider);
+	console.log(`Init: Account - ${account}, Provider - ${provider}, World - ${world}`);
 
 	return (
 		<BrowserRouter>
 			{coreStatus === "ready" ? (
 				<StarknetChainProvider>
-					{" "}
-					<Main />
+					<PwarContext.Provider value={{ account, provider, world }}>
+						{" "}
+						<Main />
+					</PwarContext.Provider>
 				</StarknetChainProvider>
 			) : (
 				<div className="loading-message">Loading, pls wait 🧘</div>
