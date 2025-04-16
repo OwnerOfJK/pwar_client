@@ -13,27 +13,34 @@ import worldsRegistry from "@/config/worlds.json";
 import { setupWorld } from "@/config/contracts.gen";
 import { DojoWallet } from "@pixelaw/core-dojo"
 import { PwarContext } from "./provider/PwarContext";
+import { useMemo } from "react";
 
 const AppContent = () => {
 	const { coreStatus, pixelawCore } = usePixelawProvider();
 
-	if (coreStatus === "error") {
-		return <div className="error-message">Error occurred, check the logs</div>;
-	}
-	if (pixelawCore && pixelawCore.status === "uninitialized") {
-		return <div className="error-message">Error occurred, check the logs</div>;
-	}
+    // Use useMemo to create these values only once
+    const contextValue = useMemo(() => {
+		if (!pixelawCore || coreStatus !== "ready") return undefined;
+        
+        const account = pixelawCore.getWallet() as DojoWallet;
+        const provider = pixelawCore.engine["dojoSetup"].provider;
+        const world = setupWorld(provider);
+        
+        console.log(`Init ONCE: Account - ${account}, Provider - ${provider}, World - ${world}`);
+        
+        return { account, provider, world };
+    }, [pixelawCore, coreStatus]);
 
-	const account = pixelawCore.getWallet() as DojoWallet;
-    const provider = pixelawCore.engine["dojoSetup"].provider;
-    const world = setupWorld(provider);
-	console.log(`Init: Account - ${account}, Provider - ${provider}, World - ${world}`);
+    // Error states
+    if (coreStatus === "error" || (pixelawCore && pixelawCore.status === "uninitialized")) {
+        return <div className="error-message">Error occurred, check the logs</div>;
+    }
 
 	return (
 		<BrowserRouter>
 			{coreStatus === "ready" ? (
 				<StarknetChainProvider>
-					<PwarContext.Provider value={{ account, provider, world }}>
+					<PwarContext.Provider value={contextValue}>
 						{" "}
 						<Main />
 					</PwarContext.Provider>
