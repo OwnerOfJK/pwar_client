@@ -1,19 +1,50 @@
 .pwarContainer {
-    display: grid;
-    grid-template-columns: 1fr 300px; /* Adjust the sidebar width as needed */
-    height: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
     width: 100%;
-}
-
-.rendererContainer {
-    width: 100%;
+    background-color: #202225;
+  }
+  
+  .gameContent {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 60px);
+  }
+  
+  .rendererContainer {
+    flex: 3;
     height: 100%;
-    grid-column: 1;
-}
-
-.pwarInterface {
-    grid-column: 2;
-    background: rgba(0, 0, 0, 0.8);
+    position: relative;
+    background-color: #2f3136;
+  }
+  
+  .pwarInterface {
+    flex: 1;
+    min-width: 320px;
+    max-width: 400px;
+    background-color: #1a1a1a;
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     overflow-y: auto;
-} 
+    border-left: 1px solid #333;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .gameContent {
+      flex-direction: column;
+    }
+    
+    .rendererContainer {
+      height: 60vh;
+    }
+    
+    .pwarInterface {
+      max-width: none;
+      height: 40vh;
+      overflow-y: auto;
+    }
+  }
