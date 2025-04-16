@@ -1,63 +1,117 @@
 import { useState, useEffect } from "react";
 import { usePixelawProvider } from "@pixelaw/react";
+import { usePwarProvider } from "@/provider/PwarContext";
+import styles from "./StatsDashboard.module.css";
 
 export const StatsDashboard = () => {
   const { pixelawCore } = usePixelawProvider();
-  const [isOpen, setIsOpen] = useState(false);
+  const { account, world } = usePwarProvider();
   const [clickCount, setClickCount] = useState(0);
+  const [pixelsPlaced, setPixelsPlaced] = useState(0);
+  const [playerCommit, setPlayerCommit] = useState<number | null>(null);
+  const [playerOwns, setPlayerOwns] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Track clicks
   const handleCellClick = () => {
     setClickCount(prev => prev + 1);
   };
 
+  // Simulate successful pixel placement
+  const incrementPixelsPlaced = () => {
+    setTimeout(() => {
+      if (Math.random() > 0.3) {
+        setPixelsPlaced(prev => prev + 1);
+      }
+    }, 500);
+  };
+
+  // Fetch player data from the contract
+  const fetchPlayerData = async () => {
+    if (!account || !world) return;
+    
+    setIsLoading(true);
+    try {
+      // Get player commit data
+      const commitResponse = await world.guild_actions.getPlayerCommit(
+        account.address
+      );
+      
+      // Get player owns data
+      const ownsResponse = await world.guild_actions.getPlayerOwns(
+        account.address
+      );
+      
+      // Update state with fetched data
+      setPlayerCommit(Number(commitResponse));
+      setPlayerOwns(Number(ownsResponse));
+    } catch (error) {
+      console.error("Failed to fetch player stats:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Set up click listener
   useEffect(() => {
     pixelawCore.events.on("cellClicked", handleCellClick);
+    pixelawCore.events.on("cellClicked", incrementPixelsPlaced);
+    
     return () => {
       pixelawCore.events.off("cellClicked", handleCellClick);
+      pixelawCore.events.off("cellClicked", incrementPixelsPlaced);
     };
   }, [pixelawCore]);
 
-  return (
-    <div   className={`fixed top-[60px] left-[20px] z-10 bg-cyan-500 p-[12px] cursor-pointer transition-all duration-30 ease-in-out ${
-        isOpen ? 'rounded-[6px]' : 'rounded-full'}`}
-      onClick={isOpen ? undefined : () => setIsOpen(true)}>
-      {isOpen ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0 }}>Player Stats</h3>
-            <button 
-              onClick={() => setIsOpen(false)}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                cursor: 'pointer',
-                color: 'white'
-              }}
-            >
-              ×
-            </button>
-          </div>
+  // Fetch player data on component mount and when account changes
+  useEffect(() => {
+    fetchPlayerData();
+    
+    // Set up periodic refresh (every 30 seconds)
+    const intervalId = setInterval(fetchPlayerData, 30000);
+    
+    return () => clearInterval(intervalId);
+  }, [account, world]);
 
-          <div style={{ 
-            backgroundColor: '#475569', 
-            padding: '16px', 
-            borderRadius: '6px',
-            minWidth: '300px'
-          }}>
-            <h4 style={{ margin: '0 0 8px 0' }}>Interaction Stats</h4>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Total Clicks:</span>
-              <span style={{ fontFamily: 'monospace' }}>{clickCount}</span>
-            </div>
-          </div>
+  return (
+    <div className={styles.statsDashboard}>
+      <h3>Player Stats</h3>
+      
+      <div className={styles.statsSection}>
+        <div className={styles.statRow}>
+          <span className={styles.statLabel}>Address:</span>
+          <span className={styles.statValue}>
+            {account ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}` : 'Not connected'}
+          </span>
         </div>
-      ) : (
-        <div style={{ width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          ≡
+        
+        <div className={styles.statRow}>
+          <span className={styles.statLabel}>Pixels Placed:</span>
+          <span className={styles.statValue}>{pixelsPlaced}</span>
         </div>
-      )}
+        
+        <div className={styles.statRow}>
+          <span className={styles.statLabel}>Pixels Committed:</span>
+          <span className={`${styles.statValue} ${styles.commitValue}`}>
+            {isLoading ? '...' : playerCommit !== null ? playerCommit : 'N/A'}
+          </span>
+        </div>
+        
+        <div className={styles.statRow}>
+          <span className={styles.statLabel}>Pixels Owned:</span>
+          <span className={`${styles.statValue} ${styles.ownsValue}`}>
+            {isLoading ? '...' : playerOwns !== null ? playerOwns : 'N/A'}
+          </span>
+        </div>
+        
+        <button 
+          className={styles.refreshButton} 
+          onClick={fetchPlayerData}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Loading...' : 'Refresh Stats'}
+        </button>
+      </div>
     </div>
   );
 };
