@@ -26,7 +26,9 @@ const AppContent = () => {
         const provider = pixelawCore.engine["dojoSetup"].provider;
         const world = setupWorld(provider);
         
-        console.log(`Init ONCE: Account - ${account}, Provider - ${provider}, World - ${world}`);
+		console.log("account:", account);
+		console.log("provider:", provider);
+		console.log("world:", world);
         
         return { account, provider, world };
     }, [pixelawCore, coreStatus]);
