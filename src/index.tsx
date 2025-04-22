@@ -18,40 +18,47 @@ import { useMemo } from "react";
 const AppContent = () => {
 	const { coreStatus, pixelawCore } = usePixelawProvider();
 
-    // Use useMemo to create these values only once
-    const contextValue = useMemo(() => {
+	// Use useMemo to create these values only once
+	const contextValue = useMemo(() => {
 		if (!pixelawCore || coreStatus !== "ready") return undefined;
-        
-        const account = pixelawCore.getWallet() as DojoWallet;
-        const provider = pixelawCore.engine["dojoSetup"].provider;
-        const world = setupWorld(provider);
-        
-		console.log("account:", account);
-		console.log("provider:", provider);
-		console.log("world:", world);
-        
-        return { account, provider, world };
-    }, [pixelawCore, coreStatus]);
+		
+		const account = pixelawCore.getWallet() as DojoWallet;
+		const provider = pixelawCore.engine["dojoSetup"].provider;
+		const world = setupWorld(provider);
+		
+		console.log(`Init ONCE: Account - ${account}, Provider - ${provider}, World - ${world}`);
+		
+		return { account, provider, world };
+	}, [pixelawCore, coreStatus]);
 
-    // Error states
-    if (coreStatus === "error" || (pixelawCore && pixelawCore.status === "uninitialized")) {
-        return <div className="error-message">Error occurred, check the logs</div>;
-    }
-
-	return (
-		<BrowserRouter>
-			{coreStatus === "ready" ? (
+	if (coreStatus === "error") {
+		return <div className="error-message">Error occurred, check the logs</div>;
+	}
+	if (coreStatus === "initAccount") {
+		return (
+			<BrowserRouter>
+				<StarknetChainProvider>
+					<div className="loading-message">
+						Pls wait 🧘 : Initializing account
+					</div>
+				</StarknetChainProvider>
+			</BrowserRouter>
+		);
+	}
+	if (coreStatus === "ready" || coreStatus === "readyWithoutWallet") {
+		return (
+			<BrowserRouter>
 				<StarknetChainProvider>
 					<PwarContext.Provider value={contextValue}>
 						{" "}
 						<Main />
 					</PwarContext.Provider>
 				</StarknetChainProvider>
-			) : (
-				<div className="loading-message">Loading, pls wait 🧘</div>
-			)}
-		</BrowserRouter>
-	);
+			</BrowserRouter>
+		);
+	}
+
+	return <div className="loading-message">Pls wait 🧘 : Loading</div>;
 };
 
 const App = () => {

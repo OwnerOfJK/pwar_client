@@ -1,6 +1,6 @@
 import Apps from "@/components/GamePage/Apps/Apps.tsx";
 import SimpleColorPicker from "@/components/GamePage/ColorPicker/SimpleColorPicker.tsx";
-import {type Alert, type Coordinate, getZoomLevel, type Interaction, type QueueItem,} from "@pixelaw/core";
+import {type Coordinate, getZoomLevel, type Interaction, type Notification, type QueueItem,} from "@pixelaw/core";
 
 import {InteractionDialog, usePixelawProvider} from "@pixelaw/react";
 import {useEffect, useMemo, useRef, useState} from "react";
@@ -61,7 +61,7 @@ const GamePage: React.FC = () => {
 	// Handle viewport events
 	useEffect(() => {
 		const handleCellClick = async (cell: Coordinate) => {
-			if (getZoomLevel(pixelawCore.getZoom()) === "far") {
+			if (getZoomLevel(zoom) === "far") {
 				console.warn("not handling cell click if zoomed out far");
 				return;
 			}
@@ -82,20 +82,14 @@ const GamePage: React.FC = () => {
 			pixelawCore.executeQueueItem(item).catch(console.error);
 		};
 
-		const handleAlert = (item: Alert) => {
-			console.log("ALERT", item);
+		const handleNotification = (item: Notification) => {
+			console.log("NOTIFICATION", item);
 		};
 
 		const handleError = (error: SimplePixelError) => {
 			console.log("handleError", error);
 			if (error.coordinate) {
-				pixelawCore.viewPort.startGlow(
-					error.coordinate,
-					2000,
-					"#FF0000",
-					10,
-					50,
-				);
+				pixelawCore.viewPort.addGlow(error.coordinate, 2000, "#FF0000", 10, 50);
 			}
 		};
 
@@ -108,19 +102,19 @@ const GamePage: React.FC = () => {
 		// pixelawCore.events.on("cellHovered", handleCellHover)
 		pixelawCore.events.on("cellClicked", handleCellClick);
 		pixelawCore.events.on("error", handleError);
-		pixelawCore.events.on("alert", handleAlert);
+		pixelawCore.events.on("notification", handleNotification);
 
 		return () => {
 			// pixelawCore.events.off("cellHovered", handleCellHover)
 			pixelawCore.events.off("cellClicked", handleCellClick);
 			pixelawCore.queue.eventEmitter.off("scheduled", handleQueueItem);
 			pixelawCore.events.off("error", handleError);
-			pixelawCore.events.off("alert", handleAlert);
+			pixelawCore.events.off("notification", handleNotification);
 		};
-	}, [pixelawCore]);
+	}, [pixelawCore, zoom]);
 
 	useEffect(() => {
-		if (coreStatus !== "ready") return;
+		if (!coreStatus.startsWith("ready")) return;
 
 		renderer.setContainer(rendererContainerRef.current!);
 	}, [coreStatus, renderer]);
