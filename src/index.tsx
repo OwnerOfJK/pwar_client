@@ -22,11 +22,14 @@ const AppContent = () => {
 	const contextValue = useMemo(() => {
 		if (!pixelawCore || coreStatus !== "ready") return undefined;
 		
-		const account = pixelawCore.getWallet() as DojoWallet;
+		const account = pixelawCore.wallet as DojoWallet;
 		const provider = pixelawCore.engine["dojoSetup"].provider;
 		const world = setupWorld(provider);
 		
-		console.log(`Init ONCE: Account - ${account}, Provider - ${provider}, World - ${world}`);
+		console.log("Account address: ", account);
+		console.log("Account address: ", account.address);
+		console.log("Provider: ", provider);
+		console.log("World: ", world);
 		
 		return { account, provider, world };
 	}, [pixelawCore, coreStatus]);
@@ -45,7 +48,7 @@ const AppContent = () => {
 			</BrowserRouter>
 		);
 	}
-	if (coreStatus === "ready" || coreStatus === "readyWithoutWallet") {
+	if ((coreStatus === "ready" || coreStatus === "readyWithoutWallet") && contextValue) {
 		return (
 			<BrowserRouter>
 				<StarknetChainProvider>
