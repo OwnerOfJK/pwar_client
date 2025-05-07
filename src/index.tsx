@@ -15,10 +15,9 @@ import { DojoWallet } from "@pixelaw/core-dojo"
 import { PwarContext } from "./provider/PwarContext";
 import { useMemo } from "react";
 
-const AppContent = () => {
+const AppContent = React.memo(() => {
 	const { coreStatus, pixelawCore } = usePixelawProvider();
 
-	// Use useMemo to create these values only once
 	const contextValue = useMemo(() => {
 		if (!pixelawCore || coreStatus !== "ready") return undefined;
 		
@@ -33,8 +32,6 @@ const AppContent = () => {
 		
 		return { account, provider, world };
 	}, [pixelawCore, coreStatus]);
-const AppContent = React.memo(() => {
-	const { coreStatus } = usePixelawProvider();
 
 	if (coreStatus === "error") {
 		return <div className="error-message">Error occurred, check the logs</div>;
