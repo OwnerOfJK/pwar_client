@@ -33,6 +33,8 @@ const AppContent = () => {
 		
 		return { account, provider, world };
 	}, [pixelawCore, coreStatus]);
+const AppContent = React.memo(() => {
+	const { coreStatus } = usePixelawProvider();
 
 	if (coreStatus === "error") {
 		return <div className="error-message">Error occurred, check the logs</div>;
@@ -62,7 +64,7 @@ const AppContent = () => {
 	}
 
 	return <div className="loading-message">Pls wait 🧘 : Loading</div>;
-};
+});
 
 const App = () => {
 	return (

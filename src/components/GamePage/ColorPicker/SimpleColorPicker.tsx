@@ -1,5 +1,5 @@
+import { hexRGBtoNumber, numberToHexRGB } from "@/utils.ts"
 import styles from "./SimpleColorPicker.module.css"
-import {hexRGBtoNumber, numberToHexRGB} from "@/utils.ts";
 
 const colors = [
     "#FF0000",
@@ -22,7 +22,7 @@ const SimpleColorPicker: React.FC<ColorPickerProps> = ({ onColorSelect, color: s
     const selectedColorHex = numberToHexRGB(selectedColor)
 
     return (
-        <div className={styles.inner}>
+        <div className={"pickerPanel"}>
             {colors.map((color) => (
                 <button
                     type={"button"}
