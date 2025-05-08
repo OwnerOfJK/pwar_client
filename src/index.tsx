@@ -13,24 +13,22 @@ import worldsRegistry from "@/config/worlds.json";
 import { setupWorld } from "@/config/contracts.gen";
 import { DojoWallet } from "@pixelaw/core-dojo"
 import { PwarContext } from "./provider/PwarContext";
-import { useMemo } from "react";
 
 const AppContent = React.memo(() => {
 	const { coreStatus, pixelawCore } = usePixelawProvider();
 
-	const contextValue = useMemo(() => {
-		if (!pixelawCore || coreStatus !== "ready") return undefined;
-		
-		const account = pixelawCore.wallet as DojoWallet;
+	const contextValue = React.useMemo(() => {
+		if (!pixelawCore || (coreStatus !== "ready" && coreStatus !== "readyWithoutWallet")) return null;
+
+		const wallet = pixelawCore.wallet as DojoWallet;
 		const provider = pixelawCore.engine["dojoSetup"].provider;
 		const world = setupWorld(provider);
-		
-		console.log("Account address: ", account);
-		console.log("Account address: ", account.address);
-		console.log("Provider: ", provider);
-		console.log("World: ", world);
-		
-		return { account, provider, world };
+
+		console.log("wallet:", wallet);
+		console.log("Provider:", provider);
+		console.log("World:", world);
+
+		return { wallet, provider, world };
 	}, [pixelawCore, coreStatus]);
 
 	if (coreStatus === "error") {
