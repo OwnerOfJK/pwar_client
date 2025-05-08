@@ -17,7 +17,7 @@ export const GuildPanel: FC<GuildPanelProps> = ({
 }) => {
     const [guilds, setGuilds] = useState<Array<{ id: number, name: string }>>([])
     const [guildName, setGuildName] = useState('')
-    const { account, world } = usePwarProvider()
+    const { wallet, world } = usePwarProvider()
     
     // Fetch guilds when gameId changes
     useEffect(() => {
@@ -27,7 +27,7 @@ export const GuildPanel: FC<GuildPanelProps> = ({
             try {
                 // This is a placeholder - you'll need to implement this method
                 // according to your contract structure
-                const fetchedGame = await world.p_war_game.get_game(gameId)
+                const fetchedGame = await world.p_war_game.getGameId(gameId)
                 if (fetchedGame && fetchedGame.guild_ids) {
                     const guildPromises = fetchedGame.guild_ids.map(async (guildId: number) => {
                         const guildData = await world.guild_actions.get_guild(gameId, guildId)

@@ -5,7 +5,7 @@ import styles from "./StatsDashboard.module.css";
 
 export const StatsDashboard = () => {
   const { pixelawCore } = usePixelawProvider();
-  const { account, world } = usePwarProvider();
+  const { wallet, world } = usePwarProvider();
   const [clickCount, setClickCount] = useState(0);
   const [pixelsPlaced, setPixelsPlaced] = useState(0);
   const [playerCommit, setPlayerCommit] = useState<number | null>(null);
@@ -28,18 +28,18 @@ export const StatsDashboard = () => {
 
   // Fetch player data from the contract
   const fetchPlayerData = async () => {
-    if (!account || !world) return;
+    if (!wallet || !world) return;
     
     setIsLoading(true);
     try {
       // Get player commit data
       const commitResponse = await world.guild_actions.getPlayerCommit(
-        account.address
+        wallet.address
       );
       
       // Get player owns data
       const ownsResponse = await world.guild_actions.getPlayerOwns(
-        account.address
+        wallet.address
       );
       
       // Update state with fetched data
@@ -63,7 +63,7 @@ export const StatsDashboard = () => {
     };
   }, [pixelawCore]);
 
-  // Fetch player data on component mount and when account changes
+  // Fetch player data on component mount and when wallet changes
   useEffect(() => {
     fetchPlayerData();
     
@@ -71,7 +71,7 @@ export const StatsDashboard = () => {
     const intervalId = setInterval(fetchPlayerData, 30000);
     
     return () => clearInterval(intervalId);
-  }, [account, world]);
+  }, [wallet, world]);
 
   return (
     <div className={styles.statsDashboard}>
@@ -81,7 +81,7 @@ export const StatsDashboard = () => {
         <div className={styles.statRow}>
           <span className={styles.statLabel}>Address:</span>
           <span className={styles.statValue}>
-            {account ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}` : 'Not connected'}
+            {wallet ? `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}` : 'Not connected'}
           </span>
         </div>
         
