@@ -10,15 +10,15 @@ type ImportMetaEnv = {
   DEFAULT_WORLD: string
   WORLDS_REGISTRY_URL: string
   // @user-defined-start
-    /*
-     * Here you can define your own special variables
-     * that would be available on `import.meta.env` but
-     * that vite-envs does not know about.
-     * This section will be preserved thanks to the special comments.
-     * Example:
-     */
-    SSR: boolean
-    // @user-defined-end
+  /*
+   * Here you can define your own special variables
+   * that would be available on `import.meta.env` but
+   * that vite-envs does not know about.
+   * This section will be preserved thanks to the special comments.
+   * Example:
+   */
+  SSR: boolean;
+  // @user-defined-end
 }
 
 interface ImportMeta {

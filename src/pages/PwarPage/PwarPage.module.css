@@ -37,11 +37,11 @@
   .gameContent {
     flex-direction: column;
   }
-  
+
   .rendererContainer {
     height: 60vh;
   }
-  
+
   .pwarInterface {
     max-width: none;
     height: 40vh;
@@ -53,7 +53,7 @@
   .rendererContainer {
     height: 50vh;
   }
-  
+
   .pwarInterface {
     height: 50vh;
     padding: 0.75rem;

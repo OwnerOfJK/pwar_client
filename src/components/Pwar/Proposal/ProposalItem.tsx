@@ -15,8 +15,10 @@ interface ProposalItemProps {
 
 export const ProposalItem: React.FC<ProposalItemProps> = ({ proposal }) => {
   const totalVotes = proposal.yesVotes + proposal.noVotes;
-  const yesPercentage = totalVotes > 0 ? (proposal.yesVotes / totalVotes) * 100 : 0;
-  const noPercentage = totalVotes > 0 ? (proposal.noVotes / totalVotes) * 100 : 0;
+  const yesPercentage =
+    totalVotes > 0 ? (proposal.yesVotes / totalVotes) * 100 : 0;
+  const noPercentage =
+    totalVotes > 0 ? (proposal.noVotes / totalVotes) * 100 : 0;
 
   return (
     <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">

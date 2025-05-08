@@ -19,7 +19,7 @@ const initialProposals: Proposal[] = [
     author: "0x123",
     yesVotes: 10,
     noVotes: 5,
-    isActive: true
+    isActive: true,
   },
   {
     id: 2,
@@ -27,8 +27,8 @@ const initialProposals: Proposal[] = [
     author: "0x456",
     yesVotes: 7,
     noVotes: 8,
-    isActive: true
-  }
+    isActive: true,
+  },
 ];
 
 export const ProposalList = () => {
@@ -37,14 +37,14 @@ export const ProposalList = () => {
 
   const handleAddProposal = () => {
     if (!newProposal.trim()) return;
-    
+
     const proposal: Proposal = {
       id: proposals.length + 1,
       title: newProposal,
       author: "0x" + Math.floor(Math.random() * 1000).toString(16),
       yesVotes: 0,
       noVotes: 0,
-      isActive: true
+      isActive: true,
     };
 
     setProposals([...proposals, proposal]);
@@ -68,7 +68,7 @@ export const ProposalList = () => {
           Add
         </button>
       </div>
-      
+
       <div className="flex flex-col gap-4">
         {proposals.map((proposal) => (
           <ProposalItem key={proposal.id} proposal={proposal} />
