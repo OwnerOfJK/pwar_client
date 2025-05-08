@@ -1,6 +1,9 @@
 import { FC, useEffect, useState } from 'react'
 import styles from './GameStatusBar.module.css'
 import { usePwarProvider } from '@/provider/PwarContext'
+import WalletPickerButton from "@/components/GamePage/WalletPicker/WalletPickerButton.tsx"
+import { WalletPicker } from "@/components/GamePage/WalletPicker/WalletPicker"
+import { usePixelawProvider } from '@pixelaw/react'
 
 interface GameStatusBarProps {
     gameStarted: boolean
@@ -40,6 +43,22 @@ export const GameStatusBar: FC<GameStatusBarProps> = ({ gameStarted, gameId }) =
         const secs = seconds % 60
         return `${mins}:${secs.toString().padStart(2, '0')}`
     }
+
+    const playerIcon = "⭐"
+    const [activeChooser, setActiveChooser] = useState<"wallet" | null>(null)
+    const { app, setApp } = usePixelawProvider()
+
+    const handleWalletPickerClick = () => {
+        if (app === "player") {
+            setActiveChooser((prev) => (prev === "wallet" ? null : "wallet"))
+        } else {
+            setApp("player")
+        }
+    }
+
+    const handleWalletPickerSecondaryClick = () => {
+        setActiveChooser((prev) => (prev === "wallet" ? null : "wallet"))
+    }
     
     return (
         <div className={styles.statusBar}>
@@ -55,6 +74,13 @@ export const GameStatusBar: FC<GameStatusBarProps> = ({ gameStarted, gameId }) =
                     )}
                 </div>
             )}
+            <WalletPickerButton
+                playerEmoji={playerIcon}
+                onClick={handleWalletPickerClick}
+                onSecondary={handleWalletPickerSecondaryClick}
+                selected={app === "player"}
+            />
+            {activeChooser === "wallet" && <WalletPicker onClose={() => setActiveChooser(null)} />}
         </div>
     )
 }
