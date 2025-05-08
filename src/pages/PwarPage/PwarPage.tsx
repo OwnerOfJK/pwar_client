@@ -4,18 +4,18 @@ import { Coordinate } from "@pixelaw/core"
 import styles from "./PwarPage.module.css"
 import { StatsDashboard } from "@/components/Pwar/Stats/StatsDashboard"
 import { usePwarProvider } from "@/provider/PwarContext"
-import { DefaultParameters } from "@pixelaw/core-dojo"
-import { CairoOption, CairoOptionVariant } from "starknet"
+import { DefaultParameters, Position } from "@pixelaw/core-dojo"
+import { AccountInterface, CairoOption, CairoOptionVariant } from "starknet"
 import { GameControls } from "@/components/Pwar/GameControls/GameControls"
 import { GuildPanel } from "@/components/Pwar/Guild/GuildPanel"
 import { GameStatusBar } from "@/components/Pwar/GameStatus/GameStatusBar"
 
 // The content of the Pwar page, wrapped by PwarProvider
 const PwarPageContent: React.FC = () => {
-    const { pixelawCore, coreStatus } = usePixelawProvider()
+    const { pixelawCore, coreStatus, center } = usePixelawProvider()
     const { viewPort: renderer } = pixelawCore
     const rendererContainerRef = useRef<HTMLDivElement | null>(null)
-    const { account, provider, world } = usePwarProvider()
+    const { wallet, provider, world } = usePwarProvider()
     
     // Game state
     const [gameStarted, setGameStarted] = useState(false)
@@ -46,8 +46,8 @@ const PwarPageContent: React.FC = () => {
                     color: 255
                 } as DefaultParameters
                 
-                // Call the interact function with the account and parameters
-                await world.p_war_actions.interact(account, defaultParams)
+                // Call the interact function with the wallet and parameters
+                await world.p_war_actions.interact(wallet, defaultParams)
             } catch (error) {
                 console.error("Failed to interact with cell:", error)
             }
@@ -57,7 +57,7 @@ const PwarPageContent: React.FC = () => {
         return () => {
             pixelawCore.events.off("cellClicked", handlePwarCellClick)
         }
-    }, [pixelawCore, account, world, gameStarted])
+    }, [pixelawCore, wallet, world, gameStarted])
 
     // Set up the renderer
     useEffect(() => {
@@ -67,9 +67,16 @@ const PwarPageContent: React.FC = () => {
 
     // Game control handlers
     const handleStartGame = async () => {
+        const starknetWallet : AccountInterface = wallet.account;
+        console.log("wallet:", wallet);
+        console.log("starknetWallet:", starknetWallet);
         try {
             // Call your contract to start a new game
-            const newGameId = await world.p_war_game.start_new_game(account)
+            const position = {
+                x: center[0],
+                y: center[1],
+            } as Position;
+            const newGameId = await world.p_war_actions.createGame(wallet, position)
             setGameId(newGameId)
             setGameStarted(true)
         } catch (error) {
@@ -80,7 +87,7 @@ const PwarPageContent: React.FC = () => {
     const handleJoinGuild = async (guildId: number) => {
         try {
             if (!gameId) return
-            await world.guild_actions.join_guild(account, gameId, guildId)
+            await world.guild_actions.joinGuild(wallet, gameId, guildId)
             setSelectedGuildId(guildId)
         } catch (error) {
             console.error("Failed to join guild:", error)
@@ -90,7 +97,7 @@ const PwarPageContent: React.FC = () => {
     const handleCreateGuild = async (guildName: string) => {
         try {
             if (!gameId) return
-            const newGuildId = await world.guild_actions.create_guild(account, gameId, guildName)
+            const newGuildId = await world.guild_actions.createGuild(wallet, gameId, guildName)
             setSelectedGuildId(newGuildId)
         } catch (error) {
             console.error("Failed to create guild:", error)
@@ -100,7 +107,7 @@ const PwarPageContent: React.FC = () => {
     const handlePayFee = async () => {
         try {
             if (!gameId) return
-            await world.payments.pay_participation_fee(account, gameId)
+            await world.payments.pay_participation_fee(wallet, gameId)
         } catch (error) {
             console.error("Failed to pay fee:", error)
         }
