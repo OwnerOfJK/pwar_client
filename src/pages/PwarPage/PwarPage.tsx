@@ -9,13 +9,14 @@ import { AccountInterface, CairoOption, CairoOptionVariant } from "starknet";
 import { GameControls } from "@/components/Pwar/GameControls/GameControls";
 import { GuildPanel } from "@/components/Pwar/Guild/GuildPanel";
 import { GameStatusBar } from "@/components/Pwar/GameStatus/GameStatusBar";
+import { DojoWallet } from "@pixelaw/core-dojo";
 
 // The content of the Pwar page, wrapped by PwarProvider
 const PwarPageContent: React.FC = () => {
-  const { pixelawCore, coreStatus, center } = usePixelawProvider();
+  const { pixelawCore, coreStatus, center, wallet } = usePixelawProvider();
   const { viewPort: renderer } = pixelawCore;
   const rendererContainerRef = useRef<HTMLDivElement | null>(null);
-  const { wallet, provider, world } = usePwarProvider();
+  const { provider, world } = usePwarProvider();
 
   // Game state
   const [gameStarted, setGameStarted] = useState(false);
@@ -67,16 +68,22 @@ const PwarPageContent: React.FC = () => {
 
   // Game control handlers
   const handleStartGame = async () => {
-    const starknetWallet: AccountInterface = wallet.account;
-    console.log("wallet:", wallet);
+    const pixelawAccount = pixelawCore.account;
+    const dojoWallet = pixelawCore.wallet as DojoWallet;
+    const directWallet = wallet;
+    const starknetWallet: AccountInterface = dojoWallet.account;
+    const starkentDirectWallet = directWallet.account;
+    console.log("this is the wallet:", dojoWallet);
     console.log("starknetWallet:", starknetWallet);
+    console.log("directWallet:", directWallet);
+    console.log("pixelaw Account: ", pixelawAccount);
     try {
       // Call your contract to start a new game
       const position = {
         x: center[0],
         y: center[1],
       } as Position;
-      const newGameId = await world.p_war_actions.createGame(wallet, position);
+      const newGameId = await world.p_war_actions.createGame(pixelawAccount, position);
       setGameId(newGameId);
       setGameStarted(true);
     } catch (error) {
@@ -138,7 +145,7 @@ const PwarPageContent: React.FC = () => {
             onCreateGuild={handleCreateGuild}
           />
 
-          <StatsDashboard />
+          {/* <StatsDashboard /> */}
         </div>
       </div>
     </div>
