@@ -13,10 +13,10 @@ import { DojoWallet } from "@pixelaw/core-dojo";
 
 // The content of the Pwar page, wrapped by PwarProvider
 const PwarPageContent: React.FC = () => {
-  const { pixelawCore, coreStatus, center, wallet } = usePixelawProvider();
+  const { pixelawCore, coreStatus, center } = usePixelawProvider();
   const { viewPort: renderer } = pixelawCore;
   const rendererContainerRef = useRef<HTMLDivElement | null>(null);
-  const { provider, world } = usePwarProvider();
+  const { provider, world, wallet, account } = usePwarProvider();
 
   // Game state
   const [gameStarted, setGameStarted] = useState(false);
@@ -48,7 +48,8 @@ const PwarPageContent: React.FC = () => {
         } as DefaultParameters;
 
         // Call the interact function with the wallet and parameters
-        await world.p_war_actions.interact(wallet, defaultParams);
+        const tx = await world.pwar_actions.interact(account, defaultParams);
+        console.log("this is the tx after interact", tx);
       } catch (error) {
         console.error("Failed to interact with cell:", error);
       }
@@ -58,7 +59,7 @@ const PwarPageContent: React.FC = () => {
     return () => {
       pixelawCore.events.off("cellClicked", handlePwarCellClick);
     };
-  }, [pixelawCore, wallet, world, gameStarted]);
+  }, [pixelawCore, world, gameStarted]);
 
   // Set up the renderer
   useEffect(() => {
@@ -68,23 +69,16 @@ const PwarPageContent: React.FC = () => {
 
   // Game control handlers
   const handleStartGame = async () => {
-    const pixelawAccount = pixelawCore.account;
-    const dojoWallet = pixelawCore.wallet as DojoWallet;
-    const directWallet = wallet;
-    const starknetWallet: AccountInterface = dojoWallet.account;
-    const starkentDirectWallet = directWallet.account;
-    console.log("this is the wallet:", dojoWallet);
-    console.log("starknetWallet:", starknetWallet);
-    console.log("directWallet:", directWallet);
-    console.log("pixelaw Account: ", pixelawAccount);
     try {
       // Call your contract to start a new game
       const position = {
         x: center[0],
         y: center[1],
       } as Position;
-      const newGameId = await world.p_war_actions.createGame(pixelawAccount, position);
-      setGameId(newGameId);
+      const newGameId = await world.pwar_actions.createGame(account, position);
+      console.log(newGameId);
+      // setGameId(newGameId);
+      setGameId(1);
       setGameStarted(true);
     } catch (error) {
       console.error("Failed to start game:", error);
@@ -94,7 +88,7 @@ const PwarPageContent: React.FC = () => {
   const handleJoinGuild = async (guildId: number) => {
     try {
       if (!gameId) return;
-      await world.guild_actions.joinGuild(wallet, gameId, guildId);
+      await world.guild_actions.joinGuild(account, gameId, guildId);
       setSelectedGuildId(guildId);
     } catch (error) {
       console.error("Failed to join guild:", error);
@@ -105,7 +99,7 @@ const PwarPageContent: React.FC = () => {
     try {
       if (!gameId) return;
       const newGuildId = await world.guild_actions.createGuild(
-        wallet,
+        account,
         gameId,
         guildName,
       );
@@ -118,7 +112,7 @@ const PwarPageContent: React.FC = () => {
   const handlePayFee = async () => {
     try {
       if (!gameId) return;
-      await world.payments.pay_participation_fee(wallet, gameId);
+      await world.payments.pay_participation_fee(account, gameId);
     } catch (error) {
       console.error("Failed to pay fee:", error);
     }
@@ -145,7 +139,7 @@ const PwarPageContent: React.FC = () => {
             onCreateGuild={handleCreateGuild}
           />
 
-          {/* <StatsDashboard /> */}
+          <StatsDashboard />
         </div>
       </div>
     </div>

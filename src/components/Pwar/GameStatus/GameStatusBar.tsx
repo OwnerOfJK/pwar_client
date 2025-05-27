@@ -15,7 +15,7 @@ export const GameStatusBar: FC<GameStatusBarProps> = ({
   gameId,
 }) => {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
-  const { world } = usePwarProvider();
+  const { world, account } = usePwarProvider();
 
   // Fetch game status/time remaining
   useEffect(() => {
@@ -24,7 +24,7 @@ export const GameStatusBar: FC<GameStatusBarProps> = ({
     const fetchGameTime = async () => {
       try {
         // Implement according to your contract structure
-        const gameData = await world.p_war_game.get_game(gameId);
+        const gameData = await world.p_war_game.get_game(account, gameId);
         if (gameData && gameData.end_time) {
           const currentTime = Math.floor(Date.now() / 1000);
           const remaining = gameData.end_time - currentTime;

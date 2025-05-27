@@ -5,7 +5,7 @@ import styles from "./StatsDashboard.module.css";
 
 export const StatsDashboard = () => {
   const { pixelawCore } = usePixelawProvider();
-  const { wallet, world } = usePwarProvider();
+  const { wallet, world, account, provider } = usePwarProvider();
   const [clickCount, setClickCount] = useState(0);
   const [pixelsPlaced, setPixelsPlaced] = useState(0);
   const [playerCommit, setPlayerCommit] = useState<number | null>(null);
@@ -28,23 +28,26 @@ export const StatsDashboard = () => {
 
   // Fetch player data from the contract
   const fetchPlayerData = async () => {
-    if (!wallet || !world) return;
+    if (!account || !world) return;
+    console.log(wallet.address);
 
     setIsLoading(true);
     try {
       // Get player commit data
-      const commitResponse = await world.guild_actions.getPlayerCommit(
+      const commitResponse = await world.guild_actions.getPlayerCommit(account,
         wallet.address,
       );
 
       // Get player owns data
-      const ownsResponse = await world.guild_actions.getPlayerOwns(
+      const ownsResponse = await world.guild_actions.getPlayerOwns(account,
         wallet.address,
       );
 
+      console.log("commitResponse", commitResponse);
+      console.log("ownsResponse", ownsResponse);
       // Update state with fetched data
-      setPlayerCommit(Number(commitResponse));
-      setPlayerOwns(Number(ownsResponse));
+      // setPlayerCommit(Number(commitResponse));
+      // setPlayerOwns(Number(ownsResponse));
     } catch (error) {
       console.error("Failed to fetch player stats:", error);
     } finally {
