@@ -4,6 +4,7 @@ import { DojoWallet } from "@pixelaw/core-dojo";
 //TODO: avoid any type.
 export type IPwarContext = {
   wallet: DojoWallet;
+  account: any;
   provider: any;
   world: any;
 };
